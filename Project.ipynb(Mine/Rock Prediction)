@@ -1,0 +1,2420 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/mittalanvi/Projects_series/blob/main/Project.ipynb(Mine/Rock%20Prediction)\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "mYSLvRgB3Sel"
+      },
+      "source": [
+        "Importing the  Necessary Libraries"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "cbE3ZjDb23el"
+      },
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "import seaborn as sns"
+      ],
+      "execution_count": 67,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "fCLGacZR4UZx"
+      },
+      "source": [
+        "Data Collection and Data Processing"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "7ymxgj2i3RwO"
+      },
+      "source": [
+        "#loading the dataset to a pandas Dataframe\n",
+        "sonar_data = pd.read_csv('/content/sonar_data.csv',header=None)"
+      ],
+      "execution_count": 68,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 236
+        },
+        "id": "I5iWxSnM42fl",
+        "outputId": "63fc56a9-e9ad-4e64-83ed-e289687a3c43"
+      },
+      "source": [
+        "sonar_data.head()"
+      ],
+      "execution_count": 69,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "       0       1       2       3       4       5       6       7       8   \\\n",
+              "0  0.0200  0.0371  0.0428  0.0207  0.0954  0.0986  0.1539  0.1601  0.3109   \n",
+              "1  0.0453  0.0523  0.0843  0.0689  0.1183  0.2583  0.2156  0.3481  0.3337   \n",
+              "2  0.0262  0.0582  0.1099  0.1083  0.0974  0.2280  0.2431  0.3771  0.5598   \n",
+              "3  0.0100  0.0171  0.0623  0.0205  0.0205  0.0368  0.1098  0.1276  0.0598   \n",
+              "4  0.0762  0.0666  0.0481  0.0394  0.0590  0.0649  0.1209  0.2467  0.3564   \n",
+              "\n",
+              "       9   ...      51      52      53      54      55      56      57  \\\n",
+              "0  0.2111  ...  0.0027  0.0065  0.0159  0.0072  0.0167  0.0180  0.0084   \n",
+              "1  0.2872  ...  0.0084  0.0089  0.0048  0.0094  0.0191  0.0140  0.0049   \n",
+              "2  0.6194  ...  0.0232  0.0166  0.0095  0.0180  0.0244  0.0316  0.0164   \n",
+              "3  0.1264  ...  0.0121  0.0036  0.0150  0.0085  0.0073  0.0050  0.0044   \n",
+              "4  0.4459  ...  0.0031  0.0054  0.0105  0.0110  0.0015  0.0072  0.0048   \n",
+              "\n",
+              "       58      59  60  \n",
+              "0  0.0090  0.0032   R  \n",
+              "1  0.0052  0.0044   R  \n",
+              "2  0.0095  0.0078   R  \n",
+              "3  0.0040  0.0117   R  \n",
+              "4  0.0107  0.0094   R  \n",
+              "\n",
+              "[5 rows x 61 columns]"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-94931a30-baab-415e-8ba0-f16f139b8117\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "      <th>1</th>\n",
+              "      <th>2</th>\n",
+              "      <th>3</th>\n",
+              "      <th>4</th>\n",
+              "      <th>5</th>\n",
+              "      <th>6</th>\n",
+              "      <th>7</th>\n",
+              "      <th>8</th>\n",
+              "      <th>9</th>\n",
+              "      <th>...</th>\n",
+              "      <th>51</th>\n",
+              "      <th>52</th>\n",
+              "      <th>53</th>\n",
+              "      <th>54</th>\n",
+              "      <th>55</th>\n",
+              "      <th>56</th>\n",
+              "      <th>57</th>\n",
+              "      <th>58</th>\n",
+              "      <th>59</th>\n",
+              "      <th>60</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0.0200</td>\n",
+              "      <td>0.0371</td>\n",
+              "      <td>0.0428</td>\n",
+              "      <td>0.0207</td>\n",
+              "      <td>0.0954</td>\n",
+              "      <td>0.0986</td>\n",
+              "      <td>0.1539</td>\n",
+              "      <td>0.1601</td>\n",
+              "      <td>0.3109</td>\n",
+              "      <td>0.2111</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0027</td>\n",
+              "      <td>0.0065</td>\n",
+              "      <td>0.0159</td>\n",
+              "      <td>0.0072</td>\n",
+              "      <td>0.0167</td>\n",
+              "      <td>0.0180</td>\n",
+              "      <td>0.0084</td>\n",
+              "      <td>0.0090</td>\n",
+              "      <td>0.0032</td>\n",
+              "      <td>R</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>0.0453</td>\n",
+              "      <td>0.0523</td>\n",
+              "      <td>0.0843</td>\n",
+              "      <td>0.0689</td>\n",
+              "      <td>0.1183</td>\n",
+              "      <td>0.2583</td>\n",
+              "      <td>0.2156</td>\n",
+              "      <td>0.3481</td>\n",
+              "      <td>0.3337</td>\n",
+              "      <td>0.2872</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0084</td>\n",
+              "      <td>0.0089</td>\n",
+              "      <td>0.0048</td>\n",
+              "      <td>0.0094</td>\n",
+              "      <td>0.0191</td>\n",
+              "      <td>0.0140</td>\n",
+              "      <td>0.0049</td>\n",
+              "      <td>0.0052</td>\n",
+              "      <td>0.0044</td>\n",
+              "      <td>R</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0.0262</td>\n",
+              "      <td>0.0582</td>\n",
+              "      <td>0.1099</td>\n",
+              "      <td>0.1083</td>\n",
+              "      <td>0.0974</td>\n",
+              "      <td>0.2280</td>\n",
+              "      <td>0.2431</td>\n",
+              "      <td>0.3771</td>\n",
+              "      <td>0.5598</td>\n",
+              "      <td>0.6194</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0232</td>\n",
+              "      <td>0.0166</td>\n",
+              "      <td>0.0095</td>\n",
+              "      <td>0.0180</td>\n",
+              "      <td>0.0244</td>\n",
+              "      <td>0.0316</td>\n",
+              "      <td>0.0164</td>\n",
+              "      <td>0.0095</td>\n",
+              "      <td>0.0078</td>\n",
+              "      <td>R</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0.0100</td>\n",
+              "      <td>0.0171</td>\n",
+              "      <td>0.0623</td>\n",
+              "      <td>0.0205</td>\n",
+              "      <td>0.0205</td>\n",
+              "      <td>0.0368</td>\n",
+              "      <td>0.1098</td>\n",
+              "      <td>0.1276</td>\n",
+              "      <td>0.0598</td>\n",
+              "      <td>0.1264</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0121</td>\n",
+              "      <td>0.0036</td>\n",
+              "      <td>0.0150</td>\n",
+              "      <td>0.0085</td>\n",
+              "      <td>0.0073</td>\n",
+              "      <td>0.0050</td>\n",
+              "      <td>0.0044</td>\n",
+              "      <td>0.0040</td>\n",
+              "      <td>0.0117</td>\n",
+              "      <td>R</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0.0762</td>\n",
+              "      <td>0.0666</td>\n",
+              "      <td>0.0481</td>\n",
+              "      <td>0.0394</td>\n",
+              "      <td>0.0590</td>\n",
+              "      <td>0.0649</td>\n",
+              "      <td>0.1209</td>\n",
+              "      <td>0.2467</td>\n",
+              "      <td>0.3564</td>\n",
+              "      <td>0.4459</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0031</td>\n",
+              "      <td>0.0054</td>\n",
+              "      <td>0.0105</td>\n",
+              "      <td>0.0110</td>\n",
+              "      <td>0.0015</td>\n",
+              "      <td>0.0072</td>\n",
+              "      <td>0.0048</td>\n",
+              "      <td>0.0107</td>\n",
+              "      <td>0.0094</td>\n",
+              "      <td>R</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>5 rows × 61 columns</p>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-94931a30-baab-415e-8ba0-f16f139b8117')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-94931a30-baab-415e-8ba0-f16f139b8117 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-94931a30-baab-415e-8ba0-f16f139b8117');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "<div id=\"df-5224c82a-872e-4c32-ba89-2f69f7dd68a6\">\n",
+              "  <button class=\"colab-df-quickchart\" onclick=\"quickchart('df-5224c82a-872e-4c32-ba89-2f69f7dd68a6')\"\n",
+              "            title=\"Suggest charts.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "     width=\"24px\">\n",
+              "    <g>\n",
+              "        <path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z\"/>\n",
+              "    </g>\n",
+              "</svg>\n",
+              "  </button>\n",
+              "\n",
+              "<style>\n",
+              "  .colab-df-quickchart {\n",
+              "      --bg-color: #E8F0FE;\n",
+              "      --fill-color: #1967D2;\n",
+              "      --hover-bg-color: #E2EBFA;\n",
+              "      --hover-fill-color: #174EA6;\n",
+              "      --disabled-fill-color: #AAA;\n",
+              "      --disabled-bg-color: #DDD;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart {\n",
+              "      --bg-color: #3B4455;\n",
+              "      --fill-color: #D2E3FC;\n",
+              "      --hover-bg-color: #434B5C;\n",
+              "      --hover-fill-color: #FFFFFF;\n",
+              "      --disabled-bg-color: #3B4455;\n",
+              "      --disabled-fill-color: #666;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart {\n",
+              "    background-color: var(--bg-color);\n",
+              "    border: none;\n",
+              "    border-radius: 50%;\n",
+              "    cursor: pointer;\n",
+              "    display: none;\n",
+              "    fill: var(--fill-color);\n",
+              "    height: 32px;\n",
+              "    padding: 0;\n",
+              "    width: 32px;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart:hover {\n",
+              "    background-color: var(--hover-bg-color);\n",
+              "    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "    fill: var(--button-hover-fill-color);\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart-complete:disabled,\n",
+              "  .colab-df-quickchart-complete:disabled:hover {\n",
+              "    background-color: var(--disabled-bg-color);\n",
+              "    fill: var(--disabled-fill-color);\n",
+              "    box-shadow: none;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-spinner {\n",
+              "    border: 2px solid var(--fill-color);\n",
+              "    border-color: transparent;\n",
+              "    border-bottom-color: var(--fill-color);\n",
+              "    animation:\n",
+              "      spin 1s steps(1) infinite;\n",
+              "  }\n",
+              "\n",
+              "  @keyframes spin {\n",
+              "    0% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "      border-left-color: var(--fill-color);\n",
+              "    }\n",
+              "    20% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    30% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    40% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    60% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    80% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "    90% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "  }\n",
+              "</style>\n",
+              "\n",
+              "  <script>\n",
+              "    async function quickchart(key) {\n",
+              "      const quickchartButtonEl =\n",
+              "        document.querySelector('#' + key + ' button');\n",
+              "      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.\n",
+              "      quickchartButtonEl.classList.add('colab-df-spinner');\n",
+              "      try {\n",
+              "        const charts = await google.colab.kernel.invokeFunction(\n",
+              "            'suggestCharts', [key], {});\n",
+              "      } catch (error) {\n",
+              "        console.error('Error during call to suggestCharts:', error);\n",
+              "      }\n",
+              "      quickchartButtonEl.classList.remove('colab-df-spinner');\n",
+              "      quickchartButtonEl.classList.add('colab-df-quickchart-complete');\n",
+              "    }\n",
+              "    (() => {\n",
+              "      let quickchartButtonEl =\n",
+              "        document.querySelector('#df-5224c82a-872e-4c32-ba89-2f69f7dd68a6 button');\n",
+              "      quickchartButtonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "    })();\n",
+              "  </script>\n",
+              "</div>\n",
+              "    </div>\n",
+              "  </div>\n"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 69
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "WN_FI_eN48V_",
+        "outputId": "3defb9fd-98f7-44a9-99d1-cdd58c0b8064"
+      },
+      "source": [
+        "# number of rows and columns\n",
+        "sonar_data.shape"
+      ],
+      "execution_count": 70,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(208, 61)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 70
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 350
+        },
+        "id": "q6A1r9J-5aOJ",
+        "outputId": "997ba3ec-f6dc-41ad-ac0c-d6dbd8801409"
+      },
+      "source": [
+        "sonar_data.describe()  #describe --> statistical measures of the data"
+      ],
+      "execution_count": 71,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "               0           1           2           3           4           5   \\\n",
+              "count  208.000000  208.000000  208.000000  208.000000  208.000000  208.000000   \n",
+              "mean     0.029164    0.038437    0.043832    0.053892    0.075202    0.104570   \n",
+              "std      0.022991    0.032960    0.038428    0.046528    0.055552    0.059105   \n",
+              "min      0.001500    0.000600    0.001500    0.005800    0.006700    0.010200   \n",
+              "25%      0.013350    0.016450    0.018950    0.024375    0.038050    0.067025   \n",
+              "50%      0.022800    0.030800    0.034300    0.044050    0.062500    0.092150   \n",
+              "75%      0.035550    0.047950    0.057950    0.064500    0.100275    0.134125   \n",
+              "max      0.137100    0.233900    0.305900    0.426400    0.401000    0.382300   \n",
+              "\n",
+              "               6           7           8           9   ...          50  \\\n",
+              "count  208.000000  208.000000  208.000000  208.000000  ...  208.000000   \n",
+              "mean     0.121747    0.134799    0.178003    0.208259  ...    0.016069   \n",
+              "std      0.061788    0.085152    0.118387    0.134416  ...    0.012008   \n",
+              "min      0.003300    0.005500    0.007500    0.011300  ...    0.000000   \n",
+              "25%      0.080900    0.080425    0.097025    0.111275  ...    0.008425   \n",
+              "50%      0.106950    0.112100    0.152250    0.182400  ...    0.013900   \n",
+              "75%      0.154000    0.169600    0.233425    0.268700  ...    0.020825   \n",
+              "max      0.372900    0.459000    0.682800    0.710600  ...    0.100400   \n",
+              "\n",
+              "               51          52          53          54          55          56  \\\n",
+              "count  208.000000  208.000000  208.000000  208.000000  208.000000  208.000000   \n",
+              "mean     0.013420    0.010709    0.010941    0.009290    0.008222    0.007820   \n",
+              "std      0.009634    0.007060    0.007301    0.007088    0.005736    0.005785   \n",
+              "min      0.000800    0.000500    0.001000    0.000600    0.000400    0.000300   \n",
+              "25%      0.007275    0.005075    0.005375    0.004150    0.004400    0.003700   \n",
+              "50%      0.011400    0.009550    0.009300    0.007500    0.006850    0.005950   \n",
+              "75%      0.016725    0.014900    0.014500    0.012100    0.010575    0.010425   \n",
+              "max      0.070900    0.039000    0.035200    0.044700    0.039400    0.035500   \n",
+              "\n",
+              "               57          58          59  \n",
+              "count  208.000000  208.000000  208.000000  \n",
+              "mean     0.007949    0.007941    0.006507  \n",
+              "std      0.006470    0.006181    0.005031  \n",
+              "min      0.000300    0.000100    0.000600  \n",
+              "25%      0.003600    0.003675    0.003100  \n",
+              "50%      0.005800    0.006400    0.005300  \n",
+              "75%      0.010350    0.010325    0.008525  \n",
+              "max      0.044000    0.036400    0.043900  \n",
+              "\n",
+              "[8 rows x 60 columns]"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-006363d5-5eb7-41e2-ab16-077c8d332991\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "      <th>1</th>\n",
+              "      <th>2</th>\n",
+              "      <th>3</th>\n",
+              "      <th>4</th>\n",
+              "      <th>5</th>\n",
+              "      <th>6</th>\n",
+              "      <th>7</th>\n",
+              "      <th>8</th>\n",
+              "      <th>9</th>\n",
+              "      <th>...</th>\n",
+              "      <th>50</th>\n",
+              "      <th>51</th>\n",
+              "      <th>52</th>\n",
+              "      <th>53</th>\n",
+              "      <th>54</th>\n",
+              "      <th>55</th>\n",
+              "      <th>56</th>\n",
+              "      <th>57</th>\n",
+              "      <th>58</th>\n",
+              "      <th>59</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>count</th>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "      <td>208.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>mean</th>\n",
+              "      <td>0.029164</td>\n",
+              "      <td>0.038437</td>\n",
+              "      <td>0.043832</td>\n",
+              "      <td>0.053892</td>\n",
+              "      <td>0.075202</td>\n",
+              "      <td>0.104570</td>\n",
+              "      <td>0.121747</td>\n",
+              "      <td>0.134799</td>\n",
+              "      <td>0.178003</td>\n",
+              "      <td>0.208259</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.016069</td>\n",
+              "      <td>0.013420</td>\n",
+              "      <td>0.010709</td>\n",
+              "      <td>0.010941</td>\n",
+              "      <td>0.009290</td>\n",
+              "      <td>0.008222</td>\n",
+              "      <td>0.007820</td>\n",
+              "      <td>0.007949</td>\n",
+              "      <td>0.007941</td>\n",
+              "      <td>0.006507</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>std</th>\n",
+              "      <td>0.022991</td>\n",
+              "      <td>0.032960</td>\n",
+              "      <td>0.038428</td>\n",
+              "      <td>0.046528</td>\n",
+              "      <td>0.055552</td>\n",
+              "      <td>0.059105</td>\n",
+              "      <td>0.061788</td>\n",
+              "      <td>0.085152</td>\n",
+              "      <td>0.118387</td>\n",
+              "      <td>0.134416</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.012008</td>\n",
+              "      <td>0.009634</td>\n",
+              "      <td>0.007060</td>\n",
+              "      <td>0.007301</td>\n",
+              "      <td>0.007088</td>\n",
+              "      <td>0.005736</td>\n",
+              "      <td>0.005785</td>\n",
+              "      <td>0.006470</td>\n",
+              "      <td>0.006181</td>\n",
+              "      <td>0.005031</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>min</th>\n",
+              "      <td>0.001500</td>\n",
+              "      <td>0.000600</td>\n",
+              "      <td>0.001500</td>\n",
+              "      <td>0.005800</td>\n",
+              "      <td>0.006700</td>\n",
+              "      <td>0.010200</td>\n",
+              "      <td>0.003300</td>\n",
+              "      <td>0.005500</td>\n",
+              "      <td>0.007500</td>\n",
+              "      <td>0.011300</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000800</td>\n",
+              "      <td>0.000500</td>\n",
+              "      <td>0.001000</td>\n",
+              "      <td>0.000600</td>\n",
+              "      <td>0.000400</td>\n",
+              "      <td>0.000300</td>\n",
+              "      <td>0.000300</td>\n",
+              "      <td>0.000100</td>\n",
+              "      <td>0.000600</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>25%</th>\n",
+              "      <td>0.013350</td>\n",
+              "      <td>0.016450</td>\n",
+              "      <td>0.018950</td>\n",
+              "      <td>0.024375</td>\n",
+              "      <td>0.038050</td>\n",
+              "      <td>0.067025</td>\n",
+              "      <td>0.080900</td>\n",
+              "      <td>0.080425</td>\n",
+              "      <td>0.097025</td>\n",
+              "      <td>0.111275</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.008425</td>\n",
+              "      <td>0.007275</td>\n",
+              "      <td>0.005075</td>\n",
+              "      <td>0.005375</td>\n",
+              "      <td>0.004150</td>\n",
+              "      <td>0.004400</td>\n",
+              "      <td>0.003700</td>\n",
+              "      <td>0.003600</td>\n",
+              "      <td>0.003675</td>\n",
+              "      <td>0.003100</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>50%</th>\n",
+              "      <td>0.022800</td>\n",
+              "      <td>0.030800</td>\n",
+              "      <td>0.034300</td>\n",
+              "      <td>0.044050</td>\n",
+              "      <td>0.062500</td>\n",
+              "      <td>0.092150</td>\n",
+              "      <td>0.106950</td>\n",
+              "      <td>0.112100</td>\n",
+              "      <td>0.152250</td>\n",
+              "      <td>0.182400</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.013900</td>\n",
+              "      <td>0.011400</td>\n",
+              "      <td>0.009550</td>\n",
+              "      <td>0.009300</td>\n",
+              "      <td>0.007500</td>\n",
+              "      <td>0.006850</td>\n",
+              "      <td>0.005950</td>\n",
+              "      <td>0.005800</td>\n",
+              "      <td>0.006400</td>\n",
+              "      <td>0.005300</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>75%</th>\n",
+              "      <td>0.035550</td>\n",
+              "      <td>0.047950</td>\n",
+              "      <td>0.057950</td>\n",
+              "      <td>0.064500</td>\n",
+              "      <td>0.100275</td>\n",
+              "      <td>0.134125</td>\n",
+              "      <td>0.154000</td>\n",
+              "      <td>0.169600</td>\n",
+              "      <td>0.233425</td>\n",
+              "      <td>0.268700</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.020825</td>\n",
+              "      <td>0.016725</td>\n",
+              "      <td>0.014900</td>\n",
+              "      <td>0.014500</td>\n",
+              "      <td>0.012100</td>\n",
+              "      <td>0.010575</td>\n",
+              "      <td>0.010425</td>\n",
+              "      <td>0.010350</td>\n",
+              "      <td>0.010325</td>\n",
+              "      <td>0.008525</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>max</th>\n",
+              "      <td>0.137100</td>\n",
+              "      <td>0.233900</td>\n",
+              "      <td>0.305900</td>\n",
+              "      <td>0.426400</td>\n",
+              "      <td>0.401000</td>\n",
+              "      <td>0.382300</td>\n",
+              "      <td>0.372900</td>\n",
+              "      <td>0.459000</td>\n",
+              "      <td>0.682800</td>\n",
+              "      <td>0.710600</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.100400</td>\n",
+              "      <td>0.070900</td>\n",
+              "      <td>0.039000</td>\n",
+              "      <td>0.035200</td>\n",
+              "      <td>0.044700</td>\n",
+              "      <td>0.039400</td>\n",
+              "      <td>0.035500</td>\n",
+              "      <td>0.044000</td>\n",
+              "      <td>0.036400</td>\n",
+              "      <td>0.043900</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>8 rows × 60 columns</p>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-006363d5-5eb7-41e2-ab16-077c8d332991')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-006363d5-5eb7-41e2-ab16-077c8d332991 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-006363d5-5eb7-41e2-ab16-077c8d332991');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "<div id=\"df-f9a73941-f0ba-4f39-92ac-49068517eed8\">\n",
+              "  <button class=\"colab-df-quickchart\" onclick=\"quickchart('df-f9a73941-f0ba-4f39-92ac-49068517eed8')\"\n",
+              "            title=\"Suggest charts.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "     width=\"24px\">\n",
+              "    <g>\n",
+              "        <path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z\"/>\n",
+              "    </g>\n",
+              "</svg>\n",
+              "  </button>\n",
+              "\n",
+              "<style>\n",
+              "  .colab-df-quickchart {\n",
+              "      --bg-color: #E8F0FE;\n",
+              "      --fill-color: #1967D2;\n",
+              "      --hover-bg-color: #E2EBFA;\n",
+              "      --hover-fill-color: #174EA6;\n",
+              "      --disabled-fill-color: #AAA;\n",
+              "      --disabled-bg-color: #DDD;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart {\n",
+              "      --bg-color: #3B4455;\n",
+              "      --fill-color: #D2E3FC;\n",
+              "      --hover-bg-color: #434B5C;\n",
+              "      --hover-fill-color: #FFFFFF;\n",
+              "      --disabled-bg-color: #3B4455;\n",
+              "      --disabled-fill-color: #666;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart {\n",
+              "    background-color: var(--bg-color);\n",
+              "    border: none;\n",
+              "    border-radius: 50%;\n",
+              "    cursor: pointer;\n",
+              "    display: none;\n",
+              "    fill: var(--fill-color);\n",
+              "    height: 32px;\n",
+              "    padding: 0;\n",
+              "    width: 32px;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart:hover {\n",
+              "    background-color: var(--hover-bg-color);\n",
+              "    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "    fill: var(--button-hover-fill-color);\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart-complete:disabled,\n",
+              "  .colab-df-quickchart-complete:disabled:hover {\n",
+              "    background-color: var(--disabled-bg-color);\n",
+              "    fill: var(--disabled-fill-color);\n",
+              "    box-shadow: none;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-spinner {\n",
+              "    border: 2px solid var(--fill-color);\n",
+              "    border-color: transparent;\n",
+              "    border-bottom-color: var(--fill-color);\n",
+              "    animation:\n",
+              "      spin 1s steps(1) infinite;\n",
+              "  }\n",
+              "\n",
+              "  @keyframes spin {\n",
+              "    0% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "      border-left-color: var(--fill-color);\n",
+              "    }\n",
+              "    20% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    30% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    40% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    60% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    80% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "    90% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "  }\n",
+              "</style>\n",
+              "\n",
+              "  <script>\n",
+              "    async function quickchart(key) {\n",
+              "      const quickchartButtonEl =\n",
+              "        document.querySelector('#' + key + ' button');\n",
+              "      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.\n",
+              "      quickchartButtonEl.classList.add('colab-df-spinner');\n",
+              "      try {\n",
+              "        const charts = await google.colab.kernel.invokeFunction(\n",
+              "            'suggestCharts', [key], {});\n",
+              "      } catch (error) {\n",
+              "        console.error('Error during call to suggestCharts:', error);\n",
+              "      }\n",
+              "      quickchartButtonEl.classList.remove('colab-df-spinner');\n",
+              "      quickchartButtonEl.classList.add('colab-df-quickchart-complete');\n",
+              "    }\n",
+              "    (() => {\n",
+              "      let quickchartButtonEl =\n",
+              "        document.querySelector('#df-f9a73941-f0ba-4f39-92ac-49068517eed8 button');\n",
+              "      quickchartButtonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "    })();\n",
+              "  </script>\n",
+              "</div>\n",
+              "    </div>\n",
+              "  </div>\n"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 71
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "XFlxfDyk5o00",
+        "outputId": "1a04c4b7-40ae-4190-ec51-25dd245857c7"
+      },
+      "source": [
+        "sonar_data[60].value_counts()"
+      ],
+      "execution_count": 72,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "M    111\n",
+              "R     97\n",
+              "Name: 60, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 72
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.countplot(x=sonar_data[60])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 466
+        },
+        "id": "m1ofuaellvBq",
+        "outputId": "0628d464-1e0a-4470-fccc-0e401fdc5a06"
+      },
+      "execution_count": 73,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<Axes: xlabel='60', ylabel='count'>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 73
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 640x480 with 1 Axes>"
+            ],
+            "image/png": "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vmbRokW54oor3rPe1ta2W2YEPljTjV+p9gjA7rKoaY98mTfffDNNTR/8tYZ87AzE/PnzM2/evMrznTt35vXXX8/YsWNTV1dXxcnYE3p6etLW1pZNmzalsbGx2uMAg8jP90dLX19f3nzzzbS2tv7G/YZ87Oy///4ZPnx4urq6+q13dXWlpaXlfV9TX1+f+vr6fmv77LPP7hqRGtXY2Og/hlAoP98fHb/pjM6vDPkblEeNGpUjjjgiq1atqqzt3Lkzq1atypQpU6o4GQBQC4b8mZ0kmTdvXmbOnJkjjzwyf/zHf5wbbrghW7duzZlnnlnt0QCAKisidv7sz/4sr732WhYuXJjOzs4cdthhWbly5XtuWobk3cuYl19++XsuZQJDn59v3k9d3297vxYAwBA25O/ZAQD4TcQOAFA0sQMAFE3sAABFEzt8JJxxxhmpq6tLXV1dRo4cmfb29lx88cXZtm1btUcDdsGvfra/8pX3/tmR2bNnp66uLmecccaeH4yaInb4yDjxxBPz6quv5sUXX8z111+fm2++OZdffnm1xwJ2UVtbW775zW/mF7/4/39wedu2bbnnnnsyYcKEKk5GrRA7fGTU19enpaUlbW1tmTZtWjo6OvLggw9WeyxgF332s59NW1tbvv3tb1fWvv3tb2fChAk5/PDDqzgZtULs8JH07LPP5tFHH82oUaOqPQowCM4666zcfvvtlee33XabT9GnQuzwkfHAAw9kr732yujRozNp0qRs3rw5F110UbXHAgbB6aefnocffjgvvfRSXnrppTzyyCM5/fTTqz0WNaKIPxcBH8bnP//5LFu2LFu3bs3111+fESNGZPr06dUeCxgEBxxwQE466aTccccd6evry0knnZT999+/2mNRI8QOHxljxozJpz71qSTvnuI+9NBDc+utt+bss8+u8mTAYDjrrLMyZ86cJMnSpUurPA21xGUsPpKGDRuWr3/967nsssv6vYMDGLpOPPHEbN++PTt27MjUqVOrPQ41ROzwkXXKKadk+PDh/g8QCjF8+PA8//zzee655zJ8+PBqj0MNETt8ZI0YMSJz5szJ4sWLs3Xr1mqPAwyCxsbGNDY2VnsMakxdX19fX7WHAADYXZzZAQCKJnYAgKKJHQCgaGIHACia2AEAiiZ2AICiiR0AoGhiBwAomtgBAIomdoAi/PznP8/pp5+esWPHpqGhIZMmTcqTTz5Z2d7X15eFCxdm/PjxaWhoSEdHRzZs2FDFiYE9RewAQ94bb7yRY445JiNHjsz3vve9PPfcc7n22muz7777VvZZvHhxlixZkuXLl2ft2rUZM2ZMpk6dmm3btlVxcmBP8LexgCHv0ksvzSOPPJIf//jH77u9r68vra2tufDCC/O1r30tSdLd3Z3m5ubccccdOe200/bkuMAe5swOMOR997vfzZFHHplTTjkl48aNy+GHH55bbrmlsn3jxo3p7OxMR0dHZa2pqSmTJ0/OmjVrqjEysAeJHWDIe/HFF7Ns2bJMnDgx//Zv/5Zzzz03559/fu68884kSWdnZ5Kkubm53+uam5sr24Byjaj2AAC7aufOnTnyyCNz9dVXJ0kOP/zwPPvss1m+fHlmzpxZ5emAanNmBxjyxo8fn0MOOaTf2sEHH5yXX345SdLS0pIk6erq6rdPV1dXZRtQLrEDDHnHHHNM1q9f32/thRdeyMc//vEkSXt7e1paWrJq1arK9p6enqxduzZTpkzZo7MCe57LWMCQd8EFF+Too4/O1VdfnVNPPTWPP/54VqxYkRUrViRJ6urqMnfu3Fx55ZWZOHFi2tvbs2DBgrS2tmbatGnVHR7Y7bz1HCjCAw88kPnz52fDhg1pb2/PvHnzMmvWrMr2vr6+XH755VmxYkW2bNmSY489NjfddFP+4A/+oIpTA3uC2AEAiuaeHQCgaGIHACia2AEAiiZ2AICiiR0AoGhiBwAomtgBAIomdgCAookdAKBoYgcAKJrYAQCK9v8AQHoeoSAYXV0AAAAASUVORK5CYII=\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_6RDFTc26aBI"
+      },
+      "source": [
+        "M --> Mine\n",
+        "\n",
+        "R --> Rock"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sonar_data.isnull().sum()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "K9q5_AYmlbR-",
+        "outputId": "57f2d546-7206-4f88-aed8-111170405838"
+      },
+      "execution_count": 74,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0     0\n",
+              "1     0\n",
+              "2     0\n",
+              "3     0\n",
+              "4     0\n",
+              "     ..\n",
+              "56    0\n",
+              "57    0\n",
+              "58    0\n",
+              "59    0\n",
+              "60    0\n",
+              "Length: 61, dtype: int64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 74
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 193
+        },
+        "id": "Uis1XlFs6M09",
+        "outputId": "a37a2621-5d39-46fe-bf47-be6cb3a4168a"
+      },
+      "source": [
+        "sonar_data.groupby(60).mean()"
+      ],
+      "execution_count": 75,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "          0         1         2         3         4         5         6   \\\n",
+              "60                                                                         \n",
+              "M   0.034989  0.045544  0.050720  0.064768  0.086715  0.111864  0.128359   \n",
+              "R   0.022498  0.030303  0.035951  0.041447  0.062028  0.096224  0.114180   \n",
+              "\n",
+              "          7         8         9   ...        50        51        52        53  \\\n",
+              "60                                ...                                           \n",
+              "M   0.149832  0.213492  0.251022  ...  0.019352  0.016014  0.011643  0.012185   \n",
+              "R   0.117596  0.137392  0.159325  ...  0.012311  0.010453  0.009640  0.009518   \n",
+              "\n",
+              "          54        55        56        57        58        59  \n",
+              "60                                                              \n",
+              "M   0.009923  0.008914  0.007825  0.009060  0.008695  0.006930  \n",
+              "R   0.008567  0.007430  0.007814  0.006677  0.007078  0.006024  \n",
+              "\n",
+              "[2 rows x 60 columns]"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-b0e94b1d-6f43-43ac-a569-eab676d4e779\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "      <th>1</th>\n",
+              "      <th>2</th>\n",
+              "      <th>3</th>\n",
+              "      <th>4</th>\n",
+              "      <th>5</th>\n",
+              "      <th>6</th>\n",
+              "      <th>7</th>\n",
+              "      <th>8</th>\n",
+              "      <th>9</th>\n",
+              "      <th>...</th>\n",
+              "      <th>50</th>\n",
+              "      <th>51</th>\n",
+              "      <th>52</th>\n",
+              "      <th>53</th>\n",
+              "      <th>54</th>\n",
+              "      <th>55</th>\n",
+              "      <th>56</th>\n",
+              "      <th>57</th>\n",
+              "      <th>58</th>\n",
+              "      <th>59</th>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>60</th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>M</th>\n",
+              "      <td>0.034989</td>\n",
+              "      <td>0.045544</td>\n",
+              "      <td>0.050720</td>\n",
+              "      <td>0.064768</td>\n",
+              "      <td>0.086715</td>\n",
+              "      <td>0.111864</td>\n",
+              "      <td>0.128359</td>\n",
+              "      <td>0.149832</td>\n",
+              "      <td>0.213492</td>\n",
+              "      <td>0.251022</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.019352</td>\n",
+              "      <td>0.016014</td>\n",
+              "      <td>0.011643</td>\n",
+              "      <td>0.012185</td>\n",
+              "      <td>0.009923</td>\n",
+              "      <td>0.008914</td>\n",
+              "      <td>0.007825</td>\n",
+              "      <td>0.009060</td>\n",
+              "      <td>0.008695</td>\n",
+              "      <td>0.006930</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>R</th>\n",
+              "      <td>0.022498</td>\n",
+              "      <td>0.030303</td>\n",
+              "      <td>0.035951</td>\n",
+              "      <td>0.041447</td>\n",
+              "      <td>0.062028</td>\n",
+              "      <td>0.096224</td>\n",
+              "      <td>0.114180</td>\n",
+              "      <td>0.117596</td>\n",
+              "      <td>0.137392</td>\n",
+              "      <td>0.159325</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.012311</td>\n",
+              "      <td>0.010453</td>\n",
+              "      <td>0.009640</td>\n",
+              "      <td>0.009518</td>\n",
+              "      <td>0.008567</td>\n",
+              "      <td>0.007430</td>\n",
+              "      <td>0.007814</td>\n",
+              "      <td>0.006677</td>\n",
+              "      <td>0.007078</td>\n",
+              "      <td>0.006024</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>2 rows × 60 columns</p>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-b0e94b1d-6f43-43ac-a569-eab676d4e779')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-b0e94b1d-6f43-43ac-a569-eab676d4e779 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-b0e94b1d-6f43-43ac-a569-eab676d4e779');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "<div id=\"df-bc06c37e-e05e-4e9b-8f73-449f7dafee70\">\n",
+              "  <button class=\"colab-df-quickchart\" onclick=\"quickchart('df-bc06c37e-e05e-4e9b-8f73-449f7dafee70')\"\n",
+              "            title=\"Suggest charts.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "     width=\"24px\">\n",
+              "    <g>\n",
+              "        <path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z\"/>\n",
+              "    </g>\n",
+              "</svg>\n",
+              "  </button>\n",
+              "\n",
+              "<style>\n",
+              "  .colab-df-quickchart {\n",
+              "      --bg-color: #E8F0FE;\n",
+              "      --fill-color: #1967D2;\n",
+              "      --hover-bg-color: #E2EBFA;\n",
+              "      --hover-fill-color: #174EA6;\n",
+              "      --disabled-fill-color: #AAA;\n",
+              "      --disabled-bg-color: #DDD;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart {\n",
+              "      --bg-color: #3B4455;\n",
+              "      --fill-color: #D2E3FC;\n",
+              "      --hover-bg-color: #434B5C;\n",
+              "      --hover-fill-color: #FFFFFF;\n",
+              "      --disabled-bg-color: #3B4455;\n",
+              "      --disabled-fill-color: #666;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart {\n",
+              "    background-color: var(--bg-color);\n",
+              "    border: none;\n",
+              "    border-radius: 50%;\n",
+              "    cursor: pointer;\n",
+              "    display: none;\n",
+              "    fill: var(--fill-color);\n",
+              "    height: 32px;\n",
+              "    padding: 0;\n",
+              "    width: 32px;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart:hover {\n",
+              "    background-color: var(--hover-bg-color);\n",
+              "    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "    fill: var(--button-hover-fill-color);\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart-complete:disabled,\n",
+              "  .colab-df-quickchart-complete:disabled:hover {\n",
+              "    background-color: var(--disabled-bg-color);\n",
+              "    fill: var(--disabled-fill-color);\n",
+              "    box-shadow: none;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-spinner {\n",
+              "    border: 2px solid var(--fill-color);\n",
+              "    border-color: transparent;\n",
+              "    border-bottom-color: var(--fill-color);\n",
+              "    animation:\n",
+              "      spin 1s steps(1) infinite;\n",
+              "  }\n",
+              "\n",
+              "  @keyframes spin {\n",
+              "    0% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "      border-left-color: var(--fill-color);\n",
+              "    }\n",
+              "    20% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    30% {\n",
+              "      border-color: transparent;\n",
+              "      border-left-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    40% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-top-color: var(--fill-color);\n",
+              "    }\n",
+              "    60% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "    }\n",
+              "    80% {\n",
+              "      border-color: transparent;\n",
+              "      border-right-color: var(--fill-color);\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "    90% {\n",
+              "      border-color: transparent;\n",
+              "      border-bottom-color: var(--fill-color);\n",
+              "    }\n",
+              "  }\n",
+              "</style>\n",
+              "\n",
+              "  <script>\n",
+              "    async function quickchart(key) {\n",
+              "      const quickchartButtonEl =\n",
+              "        document.querySelector('#' + key + ' button');\n",
+              "      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.\n",
+              "      quickchartButtonEl.classList.add('colab-df-spinner');\n",
+              "      try {\n",
+              "        const charts = await google.colab.kernel.invokeFunction(\n",
+              "            'suggestCharts', [key], {});\n",
+              "      } catch (error) {\n",
+              "        console.error('Error during call to suggestCharts:', error);\n",
+              "      }\n",
+              "      quickchartButtonEl.classList.remove('colab-df-spinner');\n",
+              "      quickchartButtonEl.classList.add('colab-df-quickchart-complete');\n",
+              "    }\n",
+              "    (() => {\n",
+              "      let quickchartButtonEl =\n",
+              "        document.querySelector('#df-bc06c37e-e05e-4e9b-8f73-449f7dafee70 button');\n",
+              "      quickchartButtonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "    })();\n",
+              "  </script>\n",
+              "</div>\n",
+              "    </div>\n",
+              "  </div>\n"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 75
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "qRShuFc46jLd"
+      },
+      "source": [
+        "# separating data and Labels\n",
+        "X = sonar_data.drop(columns=60, axis=1)\n",
+        "Y = sonar_data[60]"
+      ],
+      "execution_count": 76,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mkRRrxIe7D7l",
+        "outputId": "d85150c6-7151-4266-8785-0740fea5913a"
+      },
+      "source": [
+        "print(X)\n",
+        "print(Y)"
+      ],
+      "execution_count": 77,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "         0       1       2       3       4       5       6       7       8   \\\n",
+            "0    0.0200  0.0371  0.0428  0.0207  0.0954  0.0986  0.1539  0.1601  0.3109   \n",
+            "1    0.0453  0.0523  0.0843  0.0689  0.1183  0.2583  0.2156  0.3481  0.3337   \n",
+            "2    0.0262  0.0582  0.1099  0.1083  0.0974  0.2280  0.2431  0.3771  0.5598   \n",
+            "3    0.0100  0.0171  0.0623  0.0205  0.0205  0.0368  0.1098  0.1276  0.0598   \n",
+            "4    0.0762  0.0666  0.0481  0.0394  0.0590  0.0649  0.1209  0.2467  0.3564   \n",
+            "..      ...     ...     ...     ...     ...     ...     ...     ...     ...   \n",
+            "203  0.0187  0.0346  0.0168  0.0177  0.0393  0.1630  0.2028  0.1694  0.2328   \n",
+            "204  0.0323  0.0101  0.0298  0.0564  0.0760  0.0958  0.0990  0.1018  0.1030   \n",
+            "205  0.0522  0.0437  0.0180  0.0292  0.0351  0.1171  0.1257  0.1178  0.1258   \n",
+            "206  0.0303  0.0353  0.0490  0.0608  0.0167  0.1354  0.1465  0.1123  0.1945   \n",
+            "207  0.0260  0.0363  0.0136  0.0272  0.0214  0.0338  0.0655  0.1400  0.1843   \n",
+            "\n",
+            "         9   ...      50      51      52      53      54      55      56  \\\n",
+            "0    0.2111  ...  0.0232  0.0027  0.0065  0.0159  0.0072  0.0167  0.0180   \n",
+            "1    0.2872  ...  0.0125  0.0084  0.0089  0.0048  0.0094  0.0191  0.0140   \n",
+            "2    0.6194  ...  0.0033  0.0232  0.0166  0.0095  0.0180  0.0244  0.0316   \n",
+            "3    0.1264  ...  0.0241  0.0121  0.0036  0.0150  0.0085  0.0073  0.0050   \n",
+            "4    0.4459  ...  0.0156  0.0031  0.0054  0.0105  0.0110  0.0015  0.0072   \n",
+            "..      ...  ...     ...     ...     ...     ...     ...     ...     ...   \n",
+            "203  0.2684  ...  0.0203  0.0116  0.0098  0.0199  0.0033  0.0101  0.0065   \n",
+            "204  0.2154  ...  0.0051  0.0061  0.0093  0.0135  0.0063  0.0063  0.0034   \n",
+            "205  0.2529  ...  0.0155  0.0160  0.0029  0.0051  0.0062  0.0089  0.0140   \n",
+            "206  0.2354  ...  0.0042  0.0086  0.0046  0.0126  0.0036  0.0035  0.0034   \n",
+            "207  0.2354  ...  0.0181  0.0146  0.0129  0.0047  0.0039  0.0061  0.0040   \n",
+            "\n",
+            "         57      58      59  \n",
+            "0    0.0084  0.0090  0.0032  \n",
+            "1    0.0049  0.0052  0.0044  \n",
+            "2    0.0164  0.0095  0.0078  \n",
+            "3    0.0044  0.0040  0.0117  \n",
+            "4    0.0048  0.0107  0.0094  \n",
+            "..      ...     ...     ...  \n",
+            "203  0.0115  0.0193  0.0157  \n",
+            "204  0.0032  0.0062  0.0067  \n",
+            "205  0.0138  0.0077  0.0031  \n",
+            "206  0.0079  0.0036  0.0048  \n",
+            "207  0.0036  0.0061  0.0115  \n",
+            "\n",
+            "[208 rows x 60 columns]\n",
+            "0      R\n",
+            "1      R\n",
+            "2      R\n",
+            "3      R\n",
+            "4      R\n",
+            "      ..\n",
+            "203    M\n",
+            "204    M\n",
+            "205    M\n",
+            "206    M\n",
+            "207    M\n",
+            "Name: 60, Length: 208, dtype: object\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "j912DrKe7L03"
+      },
+      "source": [
+        "Training and Test data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "bTnEFld87GIr"
+      },
+      "source": [
+        "X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.1, stratify=Y, random_state=1)"
+      ],
+      "execution_count": 78,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ww4D1Ps379_h",
+        "outputId": "091dc50d-1173-497e-8c2e-7fbbe0974fe8"
+      },
+      "source": [
+        "print(X.shape, X_train.shape, X_test.shape)"
+      ],
+      "execution_count": 79,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "(208, 60) (187, 60) (21, 60)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "KBvcm4eR8enA",
+        "outputId": "8dd18c4b-3f5f-4fd8-9a5b-71a393530ade"
+      },
+      "source": [
+        "print(X_train)\n",
+        "print(Y_train)"
+      ],
+      "execution_count": 80,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "         0       1       2       3       4       5       6       7       8   \\\n",
+            "115  0.0414  0.0436  0.0447  0.0844  0.0419  0.1215  0.2002  0.1516  0.0818   \n",
+            "38   0.0123  0.0022  0.0196  0.0206  0.0180  0.0492  0.0033  0.0398  0.0791   \n",
+            "56   0.0152  0.0102  0.0113  0.0263  0.0097  0.0391  0.0857  0.0915  0.0949   \n",
+            "123  0.0270  0.0163  0.0341  0.0247  0.0822  0.1256  0.1323  0.1584  0.2017   \n",
+            "18   0.0270  0.0092  0.0145  0.0278  0.0412  0.0757  0.1026  0.1138  0.0794   \n",
+            "..      ...     ...     ...     ...     ...     ...     ...     ...     ...   \n",
+            "140  0.0412  0.1135  0.0518  0.0232  0.0646  0.1124  0.1787  0.2407  0.2682   \n",
+            "5    0.0286  0.0453  0.0277  0.0174  0.0384  0.0990  0.1201  0.1833  0.2105   \n",
+            "154  0.0117  0.0069  0.0279  0.0583  0.0915  0.1267  0.1577  0.1927  0.2361   \n",
+            "131  0.1150  0.1163  0.0866  0.0358  0.0232  0.1267  0.2417  0.2661  0.4346   \n",
+            "203  0.0187  0.0346  0.0168  0.0177  0.0393  0.1630  0.2028  0.1694  0.2328   \n",
+            "\n",
+            "         9   ...      50      51      52      53      54      55      56  \\\n",
+            "115  0.1975  ...  0.0222  0.0045  0.0136  0.0113  0.0053  0.0165  0.0141   \n",
+            "38   0.0475  ...  0.0149  0.0125  0.0134  0.0026  0.0038  0.0018  0.0113   \n",
+            "56   0.1504  ...  0.0048  0.0049  0.0041  0.0036  0.0013  0.0046  0.0037   \n",
+            "123  0.2122  ...  0.0197  0.0189  0.0204  0.0085  0.0043  0.0092  0.0138   \n",
+            "18   0.1520  ...  0.0045  0.0084  0.0010  0.0018  0.0068  0.0039  0.0120   \n",
+            "..      ...  ...     ...     ...     ...     ...     ...     ...     ...   \n",
+            "140  0.2058  ...  0.0798  0.0376  0.0143  0.0272  0.0127  0.0166  0.0095   \n",
+            "5    0.3039  ...  0.0104  0.0045  0.0014  0.0038  0.0013  0.0089  0.0057   \n",
+            "154  0.2169  ...  0.0039  0.0053  0.0029  0.0020  0.0013  0.0029  0.0020   \n",
+            "131  0.5378  ...  0.0228  0.0099  0.0065  0.0085  0.0166  0.0110  0.0190   \n",
+            "203  0.2684  ...  0.0203  0.0116  0.0098  0.0199  0.0033  0.0101  0.0065   \n",
+            "\n",
+            "         57      58      59  \n",
+            "115  0.0077  0.0246  0.0198  \n",
+            "38   0.0058  0.0047  0.0071  \n",
+            "56   0.0011  0.0034  0.0033  \n",
+            "123  0.0094  0.0105  0.0093  \n",
+            "18   0.0132  0.0070  0.0088  \n",
+            "..      ...     ...     ...  \n",
+            "140  0.0225  0.0098  0.0085  \n",
+            "5    0.0027  0.0051  0.0062  \n",
+            "154  0.0062  0.0026  0.0052  \n",
+            "131  0.0141  0.0068  0.0086  \n",
+            "203  0.0115  0.0193  0.0157  \n",
+            "\n",
+            "[187 rows x 60 columns]\n",
+            "115    M\n",
+            "38     R\n",
+            "56     R\n",
+            "123    M\n",
+            "18     R\n",
+            "      ..\n",
+            "140    M\n",
+            "5      R\n",
+            "154    M\n",
+            "131    M\n",
+            "203    M\n",
+            "Name: 60, Length: 187, dtype: object\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "rKLgrLOx8LQx"
+      },
+      "source": [
+        "Model Training --> Logistic Regression"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "UoM3FhQS8FAw"
+      },
+      "source": [
+        "model = LogisticRegression()"
+      ],
+      "execution_count": 82,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 75
+        },
+        "id": "GGomegF-8TPv",
+        "outputId": "f7bbd060-4d00-454e-d959-b6eb6c3f2e14"
+      },
+      "source": [
+        "#training the Logistic Regression model with training data\n",
+        "model.fit(X_train, Y_train)"
+      ],
+      "execution_count": 83,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "LogisticRegression()"
+            ],
+            "text/html": [
+              "<style>#sk-container-id-3 {color: black;background-color: white;}#sk-container-id-3 pre{padding: 0;}#sk-container-id-3 div.sk-toggleable {background-color: white;}#sk-container-id-3 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-3 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-3 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-3 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-3 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-3 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-3 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-3 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-3 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-3 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-3 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-3 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-3 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-3 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-3 div.sk-item {position: relative;z-index: 1;}#sk-container-id-3 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-3 div.sk-item::before, #sk-container-id-3 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-3 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-3 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-3 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-3 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-3 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-3 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-3 div.sk-label-container {text-align: center;}#sk-container-id-3 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-3 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-3\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>LogisticRegression()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-3\" type=\"checkbox\" checked><label for=\"sk-estimator-id-3\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">LogisticRegression</label><div class=\"sk-toggleable__content\"><pre>LogisticRegression()</pre></div></div></div></div></div>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 83
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_train_prediction = model.predict(X_train)\n",
+        "training_data_accuracy = accuracy_score(X_train_prediction, Y_train)\n",
+        "training_data_accuracy"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9gGKikjlnpTH",
+        "outputId": "18768c9b-0e7e-4ca8-8a93-50c8203a620b"
+      },
+      "execution_count": 129,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.8342245989304813"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 129
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_test_prediction = model.predict(X_test)\n",
+        "test_data_accuracy = accuracy_score(X_test_prediction, Y_test)\n",
+        "test_data_accuracy"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "--kITXG7nqA-",
+        "outputId": "275da76e-79a6-412e-ca22-72a64023f0cf"
+      },
+      "execution_count": 130,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.7619047619047619"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 130
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "DECISION TREES"
+      ],
+      "metadata": {
+        "id": "cXtVPTmLmtFs"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn import tree\n",
+        "clf = tree.DecisionTreeClassifier()\n",
+        "clf = clf.fit(X_train, Y_train)"
+      ],
+      "metadata": {
+        "id": "c98jF-7Pk4va"
+      },
+      "execution_count": 132,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_train_prediction_DT = clf.predict(X_train)\n",
+        "trainDT = accuracy_score(X_train_prediction_DT, Y_train)\n",
+        "trainDT"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "WYW6DpyDk4dw",
+        "outputId": "1d5dba2e-65b8-4d6b-cc54-4d450cf38b06"
+      },
+      "execution_count": 133,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "1.0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 133
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_test_prediction_DT = clf.predict(X_test)\n",
+        "test_data_accuracy_DT = accuracy_score(X_test_prediction_DT, Y_test)\n",
+        "test_data_accuracy_DT"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "5HZp-gjznM30",
+        "outputId": "ae3a66f0-98c9-4269-c76c-14a64ec7f533"
+      },
+      "execution_count": 134,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.8571428571428571"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 134
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import GridSearchCV\n",
+        "DT_params=[{'criterion':('gini', 'entropy', 'log_loss'),\n",
+        "            'splitter':('best', 'random'),\n",
+        "            'max_depth': [3,5,7,10,8]\n",
+        "            }]\n",
+        "GD = GridSearchCV(clf,DT_params, cv = 10, scoring='accuracy')\n",
+        "GD=GD.fit(X_train, Y_train)\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "CKdD_OhIxBUj"
+      },
+      "execution_count": 135,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "GD.best_params_\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "i9rLfy1cyFMg",
+        "outputId": "9e77b55d-aa2f-478b-9921-6dd594eea417"
+      },
+      "execution_count": 136,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'criterion': 'entropy', 'max_depth': 7, 'splitter': 'random'}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 136
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "GD.best_score_\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Oj4C6j2PyDu3",
+        "outputId": "a29de84e-760c-4062-f5bc-98c36357b155"
+      },
+      "execution_count": 137,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.7970760233918128"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 137
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_test_prediction_DT = GD.predict(X_test)\n",
+        "test_data_accuracy_DT = accuracy_score(X_test_prediction_DT, Y_test)\n",
+        "test_data_accuracy_DT"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "BzEI3oHfxJ8h",
+        "outputId": "f1153659-7e85-4aa0-8c35-3dd01c80ba4c"
+      },
+      "execution_count": 138,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.7619047619047619"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 138
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "KNN CLASSIFIER"
+      ],
+      "metadata": {
+        "id": "_mknY5rKpaKq"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "neigh = KNeighborsClassifier()\n",
+        "neigh.fit(X_train, Y_train)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 75
+        },
+        "id": "ViWx9Ce_pZce",
+        "outputId": "3b52ce2c-2bd4-408d-b06b-337f97d12416"
+      },
+      "execution_count": 141,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "KNeighborsClassifier()"
+            ],
+            "text/html": [
+              "<style>#sk-container-id-6 {color: black;background-color: white;}#sk-container-id-6 pre{padding: 0;}#sk-container-id-6 div.sk-toggleable {background-color: white;}#sk-container-id-6 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-6 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-6 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-6 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-6 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-6 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-6 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-6 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-6 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-6 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-6 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-6 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-6 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-6 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-6 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-6 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-6 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-6 div.sk-item {position: relative;z-index: 1;}#sk-container-id-6 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-6 div.sk-item::before, #sk-container-id-6 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-6 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-6 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-6 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-6 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-6 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-6 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-6 div.sk-label-container {text-align: center;}#sk-container-id-6 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-6 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-6\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>KNeighborsClassifier()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-6\" type=\"checkbox\" checked><label for=\"sk-estimator-id-6\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">KNeighborsClassifier</label><div class=\"sk-toggleable__content\"><pre>KNeighborsClassifier()</pre></div></div></div></div></div>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 141
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_train_prediction_KC = neigh.predict(X_train)\n",
+        "trainKC = accuracy_score(X_train_prediction_KC, Y_train)\n",
+        "trainKC"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "RALRMkUFpsRg",
+        "outputId": "77dcdd07-f5c3-42b2-fa69-5b6bcbf0a1a0"
+      },
+      "execution_count": 142,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.839572192513369"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 142
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_test_prediction_KC = neigh.predict(X_test)\n",
+        "test_data_accuracy_KC = accuracy_score(X_test_prediction_KC, Y_test)\n",
+        "test_data_accuracy_KC"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "fNO6x0TapuoI",
+        "outputId": "2889f506-118b-4856-a826-55e8c4e7d0e2"
+      },
+      "execution_count": 143,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.8095238095238095"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 143
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import GridSearchCV\n",
+        "KC_params=[{'algorithm':('auto', 'ball_tree', 'kd_tree', 'brute'),\n",
+        "            'weights':('uniform', 'distance'),\n",
+        "            'n_neighbors': [3,5,7,10,8]\n",
+        "            }]\n",
+        "KC = GridSearchCV(neigh,KC_params, cv = 10, scoring='accuracy')\n",
+        "KC=KC.fit(X_train, Y_train)\n"
+      ],
+      "metadata": {
+        "id": "uFF1aszlyQUb"
+      },
+      "execution_count": 144,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "KC.best_params_"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "gAERMmCGzETo",
+        "outputId": "6c377c90-d20c-4fa9-afb9-674cfb6986e3"
+      },
+      "execution_count": 145,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'algorithm': 'auto', 'n_neighbors': 3, 'weights': 'uniform'}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 145
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "KC.best_score_"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "0ZZgMS15zHS6",
+        "outputId": "4f899c82-6137-4e71-e978-831c99333e4b"
+      },
+      "execution_count": 146,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.8017543859649123"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 146
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_test_prediction_KC = KC.predict(X_test)\n",
+        "test_data_accuracy_KC = accuracy_score(X_test_prediction_KC, Y_test)\n",
+        "test_data_accuracy_KC"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "PU965_MZzO9f",
+        "outputId": "34152e03-3065-4da5-fd2e-bd7b76639319"
+      },
+      "execution_count": 147,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.9047619047619048"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 147
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "585vgP7b8vBn"
+      },
+      "source": [
+        "NAIVE BAYES"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "kCBykEtO8pLi"
+      },
+      "source": [
+        "from sklearn.naive_bayes import GaussianNB\n",
+        "gnb = GaussianNB()\n",
+        "gnb=gnb.fit(X_train, Y_train)"
+      ],
+      "execution_count": 148,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "50Wqy2Rc9nL1",
+        "outputId": "ecbca755-3ecf-4fd6-bb08-88a612eea038"
+      },
+      "source": [
+        "X_train_prediction_NB = gnb.predict(X_train)\n",
+        "trainNB = accuracy_score(X_train_prediction_NB, Y_train)\n",
+        "trainNB"
+      ],
+      "execution_count": 149,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.7593582887700535"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 149
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "RCUZ6MuR9tOV",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "ecb0e6dd-4c8f-4f1c-8ee0-c957baf1ff5d"
+      },
+      "source": [
+        "X_test_prediction_NB = gnb.predict(X_test)\n",
+        "test_data_accuracy_NB = accuracy_score(X_test_prediction_NB, Y_test)\n",
+        "test_data_accuracy_NB"
+      ],
+      "execution_count": 150,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.6190476190476191"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 150
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "04AsqCrz99vU",
+        "outputId": "2cfa274b-95cc-4a72-a444-1e7140a34861"
+      },
+      "source": [
+        "print('Accuracy on test data : ', test_data_accuracy)"
+      ],
+      "execution_count": 151,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Accuracy on test data :  0.7619047619047619\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "final_data=pd.DataFrame({'Models':['LR','KNN','Decision Tree','Naive Bayes'],\n",
+        "                        'ACC':[accuracy_score(X_test_prediction, Y_test)*100,\n",
+        "                              accuracy_score(X_test_prediction_KC, Y_test)*100,\n",
+        "                              accuracy_score(X_test_prediction_DT, Y_test)*100,\n",
+        "                               accuracy_score(X_test_prediction_NB, Y_test)*100,\n",
+        "                              ]})"
+      ],
+      "metadata": {
+        "id": "tyT1-Di9osyC"
+      },
+      "execution_count": 152,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sns.barplot(x=final_data['Models'],y=final_data['ACC'])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 466
+        },
+        "id": "ACl9bcIxqHfw",
+        "outputId": "4952f870-d1c5-427d-f1d4-48e4115bd539"
+      },
+      "execution_count": 153,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<Axes: xlabel='Models', ylabel='ACC'>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 153
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 640x480 with 1 Axes>"
+            ],
+            "image/png": "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jR8/XgcPHtT27dv1yCOPqF+/flq+fLm7x8JFePXVV5WQkKCXX35ZTz/9tCTJz89PU6dO1ZEjR/7w9j/88IPefPPN8h7Teu3bt9fBgwe1b98+LV++XG3bttVTTz2ljh076mwZfvHg1VdfrSpVqpT5tpfixRdf1MGDB50XSUpNTXVe37hxo8v2p0+fLrdZ3OliXk8lqVGjhqpWrVpGU13Yud/VgwcPKj09XV5eXurYsWO5329lRchc5qpWraqwsDBdd911SkxMVI0aNbRy5Up3j4VSmjZtmgYPHqxFixa5/BHIuLg4hYWFafLkyX+4j8GDB2vs2LEu3wqPonx9fRUWFqZrrrlGzZs319///ne9//77Wr58ucvRq6NHj6pv3766+uqrFRQUpLvuuktbtmxx2dcHH3ygVq1ayc/PT1dddZXuu+8+57rz3y4yxui5555T7dq15evrq/DwcA0ZMqTYbSVp//796ty5swIDAxUUFKT777/f5StcnnvuOTVt2lT//Oc/FRUVpeDgYD344IM6duxYsY85ODhYYWFhzov029G6c9dbtWqlCRMmqEePHgoKCnIeHVqzZo1uu+02+fv7KyIiQkOGDNGJEyec+83Pz9ff/vY3XXPNNQoICFBMTIxWr159Uc9HRSrN6+l///ufHnroIV1zzTXOI9xvv/22yzbnv7X097//XTExMUX206RJE40fP955/dVXX1XDhg3l5+enBg0a6KWXXvrDec/9roaFhalp06Z65plnlJWVpcOHDzu3SUxMVP369VWlShVdd911Gj16tM6cOSNJ2rdvnzw8PLRp0yaX/aakpCgyMtJ5FHL79u269957FRgYqNDQUD366KP6+eefndu/9957io6Olr+/v0JCQhQXF+fye1BRCJkrRGFhoRYvXqwjR47Ix8fH3eOgFBITEzVhwgR9+OGHLv8hlCRPT09NmjRJs2bN0k8//VTifoYOHaqzZ89q1qxZ5TnuZemuu+5SkyZNtGTJEuey7t2769ChQ1q+fLkyMzPVvHlztWvXTr/88osk6aOPPtJ9992nv/zlL/rmm2+Unp6um2++udj9L168WMnJyZo3b552796tZcuWKTo6uthtCwsL1blzZ/3yyy/KyMjQypUr9cMPP+iBBx5w2W7Pnj1atmyZPvzwQ3344YfKyMgo8rbJxfjHP/6hJk2a6JtvvtHo0aO1Z88etW/fXt26ddPWrVv1zjvvaM2aNRo0aJDzNoMGDdK6deu0aNEibd26Vd27d1f79u21e/fuS56jPJXm9XTq1Cm1aNFCH330kbZv367+/fvr0Ucf1YYNG4rdPiEhQRs2bNCePXucy7799ltt3bpVDz/8sCRpwYIFGjNmjCZOnKidO3dq0qRJGj16tN54441Sz378+HG99dZbqlu3rkJCQpzLq1atqrS0NO3YsUMvvvii5s+fr+TkZEm/BXJcXJxSU1Nd9pWamqpevXrJw8NDR48e1V133aVmzZpp06ZNWrFihXJycnT//fdLkg4ePKiHHnpIvXv31s6dO7V69Wp17dpVbvnTdAZW69mzp+ncuXOx6yIjI42Pj48JCAgwXl5eRpKpUaOG2b17d8UOiYvSs2dP4+PjYySZ9PT0Ytefe85bt25tevfubYwxZunSpeb8l/S///1vI8kcOXLEzJ0719SoUcMcPXrUGGNMcHCwSU1NLffHYouSXkcPPPCAadiwoTHGmC+++MIEBQWZU6dOuWxz/fXXm3nz5hljjImNjTUJCQkXvK/IyEiTnJxsjDFmxowZpn79+ub06dN/uO2nn35qPD09zf79+53rv/32WyPJbNiwwRhjzNixY02VKlVMXl6ec5sRI0aYmJiYCz/480gyS5cudbn/Ll26uGzTp08f079/f5dlX3zxhfHw8DAnT540P/74o/H09DT//e9/XbZp166dSUpKKtUcFam0r6fidOjQwTz99NPO63fccYd56qmnnNebNGlixo8f77yelJTk8lxcf/31ZuHChS77nDBhgomNjS1xXk9PTxMQEGACAgKMJFOrVi2TmZlZ4qzTp083LVq0cF5/5513TPXq1Z2/y5mZmcbhcJi9e/c657jnnntc9pGVlWUkmV27dpnMzEwjyezbt6/E+60IHJG5zI0YMUKbN2/WZ599ppiYGCUnJ6tu3bruHgt/oHHjxoqKitLYsWN1/PjxC243depUvfHGG9q5c2eJ++vTp49CQkI0derUsh71smeMcZ70uWXLFh0/flwhISEKDAx0Xvbu3ev8l/fmzZvVrl27Uu27e/fuOnnypK677jr169dPS5cuveD5ODt37lRERIQiIiKcyxo1aqRq1aq5PP9RUVEu52nUqlVLhw4duujHfU7Lli1drm/ZskVpaWkujz8+Pl6FhYXau3evtm3bpoKCAtWvX99lm4yMDJejE5VRSa+ngoICTZgwQdHR0apRo4YCAwP1ySefaP/+/RfcX0JCghYuXCjpt9+jt99+WwkJCZKkEydOaM+ePerTp4/Lz+n555//w59T27ZttXnzZm3evFkbNmxQfHy87r33Xv3444/Obd555x21adNGYWFhCgwM1KhRo1xm7dKlizw9PbV06VJJUlpamtq2bes8wXvLli3697//7TJbgwYNJP121K9JkyZq166doqOj1b17d82fP/9Pn2N0qSr9dy3hz7nqqqtUt25d1a1bV++++66io6PVsmVLNWrUyN2joQTXXHON3nvvPbVt21bt27fX8uXLiz2J8Pbbb1d8fLySkpLUq1evC+7Py8tLEydOVK9evVzeAsAf27lzp+rUqSPpt8P4tWrVKvZ8j2rVqkmS/P39S73viIgI7dq1S6tWrdLKlSv15JNPavr06crIyJC3t/clzfv72zkcjj/1yauAgACX68ePH9eAAQNczuU5p3bt2tq6das8PT2VmZkpT09Pl/WBgYGXPEdFKOn1NH36dL344otKSUlRdHS0AgICNHTo0BJPgH7ooYeUmJior7/+WidPnlRWVpbzrcBz/0CZP39+kXNpfv9z+72AgACXf5C++uqrCg4O1vz58/X8889r3bp1SkhI0Lhx4xQfH6/g4GAtWrRIM2bMcN7Gx8dHPXr0UGpqqrp27aqFCxfqxRdfdK4/fvy4OnXqVOw/fmrVqiVPT0+tXLlSa9eu1aeffqpZs2bp2Wef1fr1652vl4pCyFxBIiIi9MADDygpKUnvv/++u8fBH4iMjFRGRoYzZlasWFFszEyZMkVNmzbVDTfcUOL+unfvrunTp2vcuHHlNfJl57PPPtO2bds0bNgwSVLz5s2VnZ0tLy+vC340uXHjxkpPT3c5Obsk/v7+6tSpkzp16qSBAweqQYMG2rZtm5o3b+6yXcOGDZWVlaWsrCznUZkdO3bo6NGjFfoPk+bNm2vHjh0XPLLbrFkzFRQU6NChQ7rtttsqbK6ycqHX05dffqnOnTvrkUcekfTbOUvfffddiT/7a6+9VnfccYcWLFigkydP6u6771bNmjUlSaGhoQoPD9cPP/zgPEpzqRwOhzw8PHTy5ElJ0tq1axUZGalnn33Wuc35R2vO6du3r2666Sa99NJLOnv2rLp27epc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\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "RKrIzmr8-K9s"
+      },
+      "source": [
+        "Making a Predictive System"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "NMp-UfOd-B7B",
+        "outputId": "52abbe89-71bd-4b16-9971-05ff922c5c07"
+      },
+      "source": [
+        "input_data = (0.0307,0.0523,0.0653,0.0521,0.0611,0.0577,0.0665,0.0664,0.1460,0.2792,0.3877,0.4992,0.4981,0.4972,0.5607,0.7339,0.8230,0.9173,0.9975,0.9911,0.8240,0.6498,0.5980,0.4862,0.3150,0.1543,0.0989,0.0284,0.1008,0.2636,0.2694,0.2930,0.2925,0.3998,0.3660,0.3172,0.4609,0.4374,0.1820,0.3376,0.6202,0.4448,0.1863,0.1420,0.0589,0.0576,0.0672,0.0269,0.0245,0.0190,0.0063,0.0321,0.0189,0.0137,0.0277,0.0152,0.0052,0.0121,0.0124,0.0055)\n",
+        "\n",
+        "# changing the input_data to a numpy array\n",
+        "input_data_as_numpy_array = np.asarray(input_data)\n",
+        "\n",
+        "# reshape the np array as we are predicting for one instance\n",
+        "input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)\n",
+        "\n",
+        "prediction = model.predict(input_data_reshaped)\n",
+        "print(prediction)\n",
+        "\n",
+        "if (prediction[0]=='R'):\n",
+        "  print('The object is a Rock')\n",
+        "else:\n",
+        "  print('The object is a mine')\n"
+      ],
+      "execution_count": 154,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "['M']\n",
+            "The object is a mine\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "tcg9Er11_TSv"
+      },
+      "source": [],
+      "execution_count": 98,
+      "outputs": []
+    }
+  ]
+}
